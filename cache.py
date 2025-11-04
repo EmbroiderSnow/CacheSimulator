@@ -14,16 +14,20 @@ class Cache:
         associativity: Number of lines per set.
         level: Cache level (e.g., L1, L2).
         eviction_policy: Policy used for evicting cache lines (e.g., LRU, FIFO).
+        write_policy: Policy used for writing data (e.g., write-back, write-through).
         sets: List of Set objects.
     """
     
-    def __init__(self, cache_size, block_size, associativity, level, eviction_policy):
+    def __init__(self, cache_size, block_size, associativity, level, eviction_policy, write_policy):
         self.cache_size = cache_size
         self.block_size = block_size
         self.associativity = associativity
         self.level = level
         self.eviction_policy = eviction_policy
-        self.sets = [Set() for _ in range(self.cache_size // (self.block_size * self.associativity))]
+        self.write_policy = write_policy
+        self.set_num = cache_size // (block_size * associativity)
+        self.sets = [Set() for _ in range(self.set_num)]
+        
 
     def __repr__(self):
         return (f"Cache(level={self.level}, size={self.cache_size}B, block_size={self.block_size}B, "
@@ -47,12 +51,35 @@ class Cache:
     def get_level(self):
         return self.level
     
-    def read_data(self, address):
-        # Placeholder for read operation
-        pass
+    def read(self, address):
+        tag, index, offset = self.parse_address(address)
+        target_set = self.sets[index]
+        return target_set.read_line(tag, offset)
 
-    def write_data(self, address, data):
+    def fill(self, address):
+        tag, index, offset = self.parse_address(address)
+        target_set = self.sets[index]
+        target_set.fill_line(tag)
+
+    def write(self, address, data):
         # Placeholder for write operation
         pass
 
+    def parse_address(self, address):
+        """
+        Parse the given address into tag, index, and offset components.
+
+        Args:
+            address (int): The memory address to parse.
+
+        Returns:
+            tuple: A tuple containing (tag, index, offset).
+        """
+        # Placeholder for address parsing logic
+        mask_offset = self.block_size - 1
+        mask_index = self.set_num - 1
+        offset = address & mask_offset
+        index = (address >> self.block_size.bit_length()) & mask_index
+        tag = address >> (self.block_size.bit_length() + self.set_num.bit_length())
+        return tag, index, offset
         

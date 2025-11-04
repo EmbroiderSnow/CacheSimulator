@@ -30,8 +30,21 @@ class EvictionPolicy:
         update_on_access(set, line): Update the policy state when a line is accessed.
     """
 
-    def evict(self, cache_set):
+    def evict(self, cache_set) -> Line:
         raise NotImplementedError("Evict method must be implemented by subclasses.")
 
     def update_on_access(self, cache_set, line):
         raise NotImplementedError("Update on access method must be implemented by subclasses.")
+    
+class LRU(EvictionPolicy):
+    """
+    Least Recently Used (LRU) eviction policy implementation.
+    """
+
+    def evict(self, cache_set) -> Line:
+        # Implement LRU eviction logic
+        pass
+
+    def update_on_access(self, cache_set, line):
+        # Implement LRU update logic on access
+        pass
