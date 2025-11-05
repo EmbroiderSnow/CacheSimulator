@@ -1,6 +1,7 @@
 from cache import Cache
 from set import Set
 from line import Line
+from control import clock_time
 
 def EvictionPolicyFactory(policy_name):
     """
@@ -42,9 +43,14 @@ class LRU(EvictionPolicy):
     """
 
     def evict(self, cache_set) -> Line:
-        # Implement LRU eviction logic
-        pass
+        min_index = 0
+        min_time = int(1e18)
+        for i, line in enumerate(cache_set.lines):
+            if line.access_time < min_time:
+                min_time = line.access_time
+                min_index = i
+        return cache_set.lines[min_index]
+
 
     def update_on_access(self, cache_set, line):
-        # Implement LRU update logic on access
-        pass
+        line.set_access_time(clock_time)

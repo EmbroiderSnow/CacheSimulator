@@ -49,6 +49,6 @@ class Set:
                 return 
         # Fall into eviction policy if no empty line is found
         evicted_line = self.eviction_policy.evict(self)
+        self.eviction_policy.update_on_access(self, evicted_line)
         evicted_line.fill(tag)
-        evicted_line.set_access_time(clock_time)
         
