@@ -1,1 +1,0 @@
-clock_time = 0

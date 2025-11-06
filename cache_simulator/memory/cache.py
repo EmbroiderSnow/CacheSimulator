@@ -1,4 +1,4 @@
-from set import Set
+from cache_simulator.memory.set import Set
 
 cache_structure = []
 
@@ -9,6 +9,7 @@ class Cache:
     It can describe various levels of cache (L1, L2, L3) with different configurations.
     
     Attributes:
+        name: Name of the cache.
         cache_size: Total size of the cache in bytes.
         block_size: Size of each block in bytes.
         associativity: Number of lines per set.
@@ -17,8 +18,9 @@ class Cache:
         write_policy: Policy used for writing data (e.g., write-back, write-through).
         sets: List of Set objects.
     """
-    
-    def __init__(self, cache_size, block_size, associativity, level, eviction_policy, write_policy):
+
+    def __init__(self, name, cache_size, block_size, associativity, level, eviction_policy, write_policy):
+        self.name = name
         self.cache_size = cache_size
         self.block_size = block_size
         self.associativity = associativity

@@ -1,5 +1,5 @@
-from line import Line
-from control import clock_time
+from cache_simulator.memory.line import Line
+from cache_simulator.controller.control import clock_time
 
 class Set:
     """

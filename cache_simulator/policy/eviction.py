@@ -1,7 +1,7 @@
-from cache import Cache
-from set import Set
-from line import Line
-from control import clock_time
+from cache_simulator.memory.cache import Cache
+from cache_simulator.memory.set import Set
+from cache_simulator.memory.line import Line
+from cache_simulator.controller.control import clock_time
 
 def EvictionPolicyFactory(policy_name):
     """
@@ -14,8 +14,7 @@ def EvictionPolicyFactory(policy_name):
         EvictionPolicy: An instance of the corresponding eviction policy class.
     """
     if policy_name == 'LRU':
-        # return LRU()
-        pass
+        return LRU()
     elif policy_name == 'FIFO':
         # return FIFO()
         pass
