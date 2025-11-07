@@ -1,6 +1,6 @@
 from cache_simulator.controller.control import Status
 
-class Performace:
+class Performance:
     """
     A class to represent performance metrics.
     
@@ -9,12 +9,16 @@ class Performace:
         miss_count: Total number of misses.
         hit_count: Total number of hits.
         total_latency: Total latency of all accesses.
+        cache_access_count: Dictionary mapping cache levels to their access counts.
+        replacement_count: Number of replacements made.
     """
     def __init__(self):
         self.access_count = 0
         self.miss_count = 0
         self.hit_count = 0
         self.total_latency = 0
+        self.cache_access_count = {}
+        self.replacement_count = 0
     
     def record_access(self, hit: Status):
         self.access_count += 1
@@ -23,6 +27,14 @@ class Performace:
         else:
             self.miss_count += 1
         assert self.access_count == self.hit_count + self.miss_count, "Inconsistent performance metrics"
+
+    def record_cache_access(self, level_id: str):
+        if level_id not in self.cache_access_count:
+            self.cache_access_count[level_id] = 0
+        self.cache_access_count[level_id] += 1
+
+    def record_replacement(self):
+        self.replacement_count += 1
 
     def record_latency(self, latency: int):
         self.total_latency += latency
