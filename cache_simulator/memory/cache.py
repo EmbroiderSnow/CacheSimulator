@@ -56,20 +56,20 @@ class Cache:
     def get_level(self):
         return self.level
     
-    def read(self, address) -> Status:
+    def read(self, address, timestamp) -> Status:
         tag, index, offset = self.parse_address(address)
         target_set: Set = self.sets[index]
-        return target_set.read_line(tag)
+        return target_set.read_line(tag, timestamp)
     
-    def write(self, address, data) -> Status:
+    def write(self, address, timestamp) -> Status:
         tag, index, offset = self.parse_address(address)
         target_set = self.sets[index]
-        return target_set.write_line(tag)
+        return target_set.write_line(tag, timestamp)
 
-    def fill(self, address):
+    def fill(self, address, timestamp):
         tag, index, offset = self.parse_address(address)
         target_set = self.sets[index]
-        target_set.fill_line(tag)
+        target_set.fill_line(tag, timestamp)
 
     def parse_address(self, address):
         """
