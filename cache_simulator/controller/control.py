@@ -114,7 +114,7 @@ class MemoryController:
                 self.performance.record_cache_access("MainMemory")
 
             for lvl in range(hit_level - 1, level - 1, -1):
-                is_dirty, evicted, evicted_address = self.hierarchy.levels[level].fill(address, self.timestamp)
+                is_dirty, evicted, evicted_address = self.hierarchy.levels[lvl].fill(address, self.timestamp)
                 if evicted:
                     self.performance.record_replacement()
                 if is_dirty:

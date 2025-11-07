@@ -1,3 +1,4 @@
+import math
 from cache_simulator.memory.set import Set
 from cache_simulator.controller.status import Status
 from cache_simulator.policy.evictionPolicyFactory import EvictionPolicyFactory
@@ -32,7 +33,9 @@ class Cache:
         self.write_policy = write_policy
         self.allocate_policy = write_allocate
         self.set_num = self.cache_size // (block_size * associativity)
-        self.sets = [Set(index=i, associativity=associativity, block_size=block_size, eviction_plicy=self.eviction_policy) for i in range(self.set_num)]
+        self.offset_bits = int(math.log2(block_size))
+        self.index_bits = int(math.log2(self.set_num))
+        self.sets = [Set(index=i, associativity=associativity, block_size=block_size, eviction_plicy=self.eviction_policy, offset_bits=self.offset_bits, index_bits=self.index_bits) for i in range(self.set_num)]
         
 
     def __repr__(self):
@@ -86,8 +89,9 @@ class Cache:
         mask_offset = self.block_size - 1
         mask_index = self.set_num - 1
         offset = address & mask_offset
-        index = (address >> self.block_size.bit_length()) & mask_index
-        tag = address >> (self.block_size.bit_length() + self.set_num.bit_length())
+        index = (address >> self.offset_bits) & mask_index
+        tag = address >> (self.offset_bits + self.index_bits)
+        print(f"Address %x parsed to Tag: %x, Index: %x, Offset: %x" % (address, tag, index, offset))
         return tag, index, offset
         
     def parse_size_to_bytes(self, size_str):

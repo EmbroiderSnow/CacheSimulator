@@ -10,13 +10,17 @@ class Set:
         lines: List of Line objects in the set.
         associativity: Number of lines per set.
         eviction_policy: Eviction policy applied to this set.
+        offset_bits: Number of bits for block offset.
+        index_bits: Number of bits for set index.
     """
 
-    def __init__(self, index, associativity, block_size, eviction_plicy: EvictionPolicy):
+    def __init__(self, index, associativity, block_size, eviction_plicy: EvictionPolicy, offset_bits, index_bits):
         self.index = index
         self.associativity = associativity
         self.block_size = block_size
         self.eviction_policy = eviction_plicy
+        self.offset_bits = offset_bits
+        self.index_bits = index_bits
         self.lines = [Line() for _ in range(associativity)]
 
     def __repr__(self):
@@ -95,6 +99,7 @@ class Set:
         tag = line.get_tag()
         index = self.index
         offset = 0  # Assuming offset is 0 for the start of the block
-        address = (tag << (self.index.bit_length() + self.block_size.bit_length())) | (index << self.block_size.bit_length()) | offset
+        address = (tag << (self.index_bits + self.offset_bits)) + \
+                  (index << self.offset_bits) + offset
         return address
         
