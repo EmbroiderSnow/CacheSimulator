@@ -43,3 +43,16 @@ class Performance:
         if self.access_count == 0:
             return 0.0
         return self.miss_count / self.access_count
+    
+    def print_stats(self):
+        print("Performance Statistics:")
+        print(f"Total Accesses: {self.access_count}")
+        print(f"Total Hits: {self.hit_count}")
+        print(f"Total Misses: {self.miss_count}")
+        print(f"Miss Rate: {self.get_miss_rate():.4f}")
+        print(f"Total Latency: {self.total_latency} cycles")
+        print(f"Average Latency per Access: {self.total_latency / self.access_count if self.access_count > 0 else 0:.2f} cycles")
+        print("Cache Access Counts:")
+        for level_id, count in self.cache_access_count.items():
+            print(f"  {level_id}: {count} accesses")
+        print(f"Total Replacements: {self.replacement_count}")
