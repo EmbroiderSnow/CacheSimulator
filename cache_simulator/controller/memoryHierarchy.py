@@ -30,9 +30,9 @@ class MemoryHierarchy:
                 hit_latency=cache_config["config"]["hit_latency"],
                 eviction_policy=cache_config["config"]["replacement_policy"],
                 write_policy=cache_config["config"]["write_policy"],
-                write_allocate=cache_config["config"]["allocate_policy"]
+                write_allocate=cache_config["config"]["allocation_policy"]
             )
             self.levels.append(cache)
         self.interconnects = config["interconnects"]
-        self.bus_latencies = [interconnect["latency"] for interconnect in self.interconnects]
+        self.bus_latencies = [interconnect["bus_latency"] for interconnect in self.interconnects]
         self.main_memory_latency = config["main_memory"]["access_latency"]

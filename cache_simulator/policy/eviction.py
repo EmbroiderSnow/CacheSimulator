@@ -1,25 +1,4 @@
-from cache_simulator.memory.cache import Cache
-from cache_simulator.memory.set import Set
 from cache_simulator.memory.line import Line
-from cache_simulator.controller.control import clock_time
-
-def EvictionPolicyFactory(policy_name):
-    """
-    Factory function to create eviction policy instances based on the policy name.
-
-    Args:
-        policy_name (str): Name of the eviction policy (e.g., 'LRU', 'FIFO').
-
-    Returns:
-        EvictionPolicy: An instance of the corresponding eviction policy class.
-    """
-    if policy_name == 'LRU':
-        return LRU()
-    elif policy_name == 'FIFO':
-        # return FIFO()
-        pass
-    else:
-        raise ValueError(f"Unknown eviction policy: {policy_name}")
     
 class EvictionPolicy:
     """
@@ -50,6 +29,5 @@ class LRU(EvictionPolicy):
                 min_index = i
         return cache_set.lines[min_index]
 
-
-    def update_on_access(self, cache_set, line):
-        line.set_access_time(clock_time)
+    def update_on_access(self, cache_set, line, timestamp):
+        line.set_access_time(timestamp)

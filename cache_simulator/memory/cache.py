@@ -1,5 +1,6 @@
 from cache_simulator.memory.set import Set
-from cache_simulator.controller.control import Status
+from cache_simulator.controller.status import Status
+from cache_simulator.policy.evictionPolicyFactory import EvictionPolicyFactory
 
 class Cache:
     """
@@ -22,16 +23,16 @@ class Cache:
 
     def __init__(self, name, cache_size, block_size, associativity, level, hit_latency, eviction_policy, write_policy, write_allocate):
         self.name = name
-        self.cache_size = cache_size
+        self.cache_size = self.parse_size_to_bytes(cache_size)
         self.block_size = block_size
         self.associativity = associativity
         self.level = level
         self.hit_latency = hit_latency
-        self.eviction_policy = eviction_policy
+        self.eviction_policy = EvictionPolicyFactory(eviction_policy)
         self.write_policy = write_policy
         self.allocate_policy = write_allocate
-        self.set_num = cache_size // (block_size * associativity)
-        self.sets = [Set(index=i, associativity=associativity, block_size=block_size, eviction_plicy=eviction_policy) for i in range(self.set_num)]
+        self.set_num = self.cache_size // (block_size * associativity)
+        self.sets = [Set(index=i, associativity=associativity, block_size=block_size, eviction_plicy=self.eviction_policy) for i in range(self.set_num)]
         
 
     def __repr__(self):
@@ -89,3 +90,39 @@ class Cache:
         tag = address >> (self.block_size.bit_length() + self.set_num.bit_length())
         return tag, index, offset
         
+    def parse_size_to_bytes(self, size_str):
+        """
+        Parse strings like "32KB", "256MB", "8GB" and return the corresponding size in bytes.
+        """
+        size_str = size_str.strip().upper()
+        
+        multipliers = {
+            'B': 1,
+            'KB': 1024,
+            'MB': 1024**2,
+            'GB': 1024**3,
+        }
+
+        num_str = ""
+        unit_str = ""
+        for i, char in enumerate(size_str):
+            if not char.isdigit():
+                num_str = size_str[:i]
+                unit_str = size_str[i:]
+                break
+        
+        if not unit_str:
+            num_str = size_str
+            unit_str = 'B'
+
+        unit_str = unit_str.strip()
+
+        try:
+            number = int(num_str)
+        except ValueError:
+            raise ValueError(f"Invalid number '{num_str}' in size string: '{size_str}'")
+
+        if unit_str not in multipliers:
+            raise ValueError(f"Invalid unit '{unit_str}' in size string: '{size_str}'")
+
+        return number * multipliers[unit_str]

@@ -1,10 +1,6 @@
-from enum import Enum
 from cache_simulator.controller.performance import Performance
 from cache_simulator.controller.memoryHierarchy import MemoryHierarchy
-
-class Status(Enum):
-    HIT = "HIT"
-    MISS = "MISS"
+from cache_simulator.controller.status import Status
 
 class MemoryController:
     """
@@ -39,8 +35,9 @@ class MemoryController:
         self.time_tick()
 
         for level, cache in enumerate(self.hierarchy.levels):
-            status = cache.read(address)
-            self.performance.record_access(status)
+            status = cache.read(address, self.timestamp)
+            if level == 0:
+                self.performance.record_access(status)
             self.performance.record_cache_access(cache.name)
             total_latency += cache.hit_latency
 
@@ -53,14 +50,15 @@ class MemoryController:
             total_latency += self.hierarchy.main_memory_latency
             hit_level = len(self.hierarchy.levels)
             self.performance.record_cache_access("MainMemory")
-            total_altency += self.hierarchy.bus_latencies[-1]
+            total_latency += self.hierarchy.bus_latencies[-1]
 
         for level in range(hit_level - 1, -1, -1):
-            is_dirty, evicted_address = self.hierarchy.levels[level].fill(address)
+            is_dirty, evited, evicted_address = self.hierarchy.levels[level].fill(address, self.timestamp)
             total_latency += self.hierarchy.bus_latencies[level]
+            if evited:
+                self.performance.record_replacement()
             if is_dirty:
                 # write back to next level
-                self.performance.record_replacement()
                 self.handle_write_back(evicted_address, level + 1, sync=False)
 
         self.performance.record_latency(total_latency)
@@ -104,7 +102,7 @@ class MemoryController:
 
             for lvl in range(level + 1, len(self.hierarchy.levels)):
                 cur_cache = self.hierarchy.levels[lvl]
-                status = cur_cache.read(address)
+                status = cur_cache.read(address, self.timestamp)
                 self.performance.record_cache_access(cur_cache.name)
                 if status == Status.HIT:
                     hit_level = lvl
@@ -116,9 +114,10 @@ class MemoryController:
                 self.performance.record_cache_access("MainMemory")
 
             for lvl in range(hit_level - 1, level - 1, -1):
-                is_dirty, evicted_address = self.hierarchy.levels[level].fill(address)
-                if is_dirty:
+                is_dirty, evicted, evicted_address = self.hierarchy.levels[level].fill(address, self.timestamp)
+                if evicted:
                     self.performance.record_replacement()
+                if is_dirty:
                     self.handle_write_back(evicted_address, lvl + 1, sync=False)
 
             # Now the line is in the cache at 'level', perform the write

@@ -1,4 +1,4 @@
-from cache_simulator.controller.control import Status
+from cache_simulator.controller.status import Status
 
 class Line:
     """
@@ -20,7 +20,7 @@ class Line:
 
     def __repr__(self):
         return (f"Line(valid={self.valid}, tag={self.tag}, "
-                f"dirty={self.dirty}, data={self.data})")
+                f"dirty={self.dirty})")
     
     def is_valid(self) -> bool:
         return self.valid

@@ -4,7 +4,7 @@
       "id": "L1-Cache",
       "level": 1,
       "config": {
-        "size": "32KB",
+        "size": "4KB",
         "associativity": 8,
         "block_size": 64,
         "replacement_policy": "LRU",
@@ -17,7 +17,7 @@
       "id": "L2-Cache",
       "level": 2,
       "config": {
-        "size": "256KB",
+        "size": "64KB",
         "associativity": 8,
         "block_size": 64,
         "replacement_policy": "LRU",

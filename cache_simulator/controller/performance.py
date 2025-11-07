@@ -1,4 +1,4 @@
-from cache_simulator.controller.control import Status
+from cache_simulator.controller.status import Status
 
 class Performance:
     """

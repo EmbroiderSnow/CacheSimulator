@@ -1,5 +1,5 @@
 from cache_simulator.memory.line import Line
-from cache_simulator.controller.control import clock_time, Status
+from cache_simulator.controller.status import Status
 from cache_simulator.policy.eviction import EvictionPolicy
 
 class Set:
@@ -64,22 +64,23 @@ class Set:
             timestamp: The current global clock time.
 
         Returns:
-            tuple: (is_dirty_evicted: bool, evicted_line_address: int)
+            tuple: (is_dirty: bool, evicted: bool, evicted_line_address: int)
         """
         for line in self.lines:
             if not line.is_valid():
                 line.fill(tag)
                 line.set_access_time(timestamp)
-                return (False, 0)
+                return (False, False, 0)
         # Fall into eviction policy if no empty line is found
         evicted_line = self.eviction_policy.evict(self)
+        evicted_address = self.get_address_of_line(evicted_line)
         evicted_line.set_access_time(timestamp)
         evicted_line.fill(tag)
         if evicted_line.is_dirty():
             evicted_line.dirty = False
-            return (True, self.get_address_of_line(evicted_line))
+            return (True, True, evicted_address)
         else :
-            return (False, 0)
+            return (False, True, 0)
         
     def get_address_of_line(self, line: Line) -> int:
         """
