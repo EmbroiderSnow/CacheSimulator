@@ -56,7 +56,7 @@ class Cache:
     def read(self, address):
         tag, index, offset = self.parse_address(address)
         target_set = self.sets[index]
-        return target_set.read_line(tag, offset)
+        return target_set.read_line(tag)
 
     def fill(self, address):
         tag, index, offset = self.parse_address(address)
@@ -64,8 +64,9 @@ class Cache:
         target_set.fill_line(tag)
 
     def write(self, address, data):
-        # Placeholder for write operation
-        pass
+        tag, index, offset = self.parse_address(address)
+        target_set = self.sets[index]
+        return target_set.write_line(tag)
 
     def parse_address(self, address):
         """

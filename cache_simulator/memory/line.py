@@ -1,3 +1,5 @@
+from cache_simulator.controller.control import Status
+
 class Line:
     """
     Structure of a cache line.
@@ -29,20 +31,16 @@ class Line:
     def is_dirty(self) -> bool:
         return self.dirty
     
-    def get_data(self, offset):
+    def read(self):
         """
-        Simulate to get data in the line at the specified offset.
-
-        Because we are implementing a cache simulator, the actual data storage is not modeled.
-
-        Args:
-            offset: The offset within the cache line.
-
+        Read data from the line.
+        
+        But we don't actually store data in this simulation.
+        
         Returns:
-            Placeholder for data at the specified offset.
+            Status: Must be a HIT since this method is called only if the line is valid.
         """
-        ref_count += 1
-        return f"Data at offset {offset} in line with tag {self.tag}"
+        return Status.HIT
     
     def fill(self, tag):
         """
@@ -55,6 +53,12 @@ class Line:
         self.valid = True
         self.dirty = False
         self.ref_count = 0
+
+    def write(self):
+        """
+        Mark the line as dirty to indicate it has been modified.
+        """
+        self.dirty = True
 
     def set_access_time(self, time):
         """

@@ -1,5 +1,6 @@
 from cache_simulator.memory.line import Line
-from cache_simulator.controller.control import clock_time
+from cache_simulator.controller.control import clock_time, Status
+from cache_simulator.policy.eviction import EvictionPolicy
 
 class Set:
     """
@@ -19,7 +20,7 @@ class Set:
     def __repr__(self):
         return f"Set(associativity={self.associativity}, lines={self.lines})"
     
-    def read_line(self, tag, offset):
+    def read_line(self, tag) -> Status:
         """
         Reads a line from the set based on the tag and offset.
 
@@ -32,8 +33,23 @@ class Set:
         """
         for line in self.lines:
             if line.is_valid() and line.get_tag() == tag:
-                return line.get_data(offset)
-        return None
+                line.set_access_time(clock_time)
+                return line.read()
+        return Status.MISS
+    
+    def write_line(self, tag) -> Status:
+        """
+        Writes to a line in the set based on the tag.
+
+        Args:
+            tag: The tag of the line to write.
+        """
+        for line in self.lines:
+            if line.is_valid() and line.get_tag() == tag:
+                line.set_access_time(clock_time)
+                line.write()
+                return Status.HIT
+        return Status.MISS
     
     def fill_line(self, tag):
         """

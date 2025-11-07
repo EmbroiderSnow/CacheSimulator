@@ -1,6 +1,11 @@
+import json
+from enum import Enum
+
 clock_time = 0
 
-import json
+class Status(Enum):
+    HIT = "HIT"
+    MISS = "MISS"
 
 class MemoryHierarchy:
     """
