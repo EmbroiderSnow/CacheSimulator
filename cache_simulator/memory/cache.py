@@ -91,7 +91,6 @@ class Cache:
         offset = address & mask_offset
         index = (address >> self.offset_bits) & mask_index
         tag = address >> (self.offset_bits + self.index_bits)
-        print(f"Address %x parsed to Tag: %x, Index: %x, Offset: %x" % (address, tag, index, offset))
         return tag, index, offset
         
     def parse_size_to_bytes(self, size_str):
