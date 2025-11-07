@@ -58,25 +58,42 @@ class MemoryController:
             total_latency += self.hierarchy.bus_latencies[level]
             if is_dirty:
                 # write back to next level
-                self.handle_write_back(evicted_address, level + 1)
+                self.handle_write_back(evicted_address, level + 1, sync=False)
 
         self.performence.record_latency(total_latency)
 
-    def handle_write_back(self, address, level):
+    def write(self, address):
         """
-        Handle write-back operation for a dirty line.
+        Write data to L1 cache in the memory hierarchy.
+        
+        Args:
+            address: The memory address to write to.
+        """
+        self.handle_write_back(address, 0, sync=True)
 
-        An asynchronous write-back to the next memory level.
+    def handle_write_back(self, address, level, sync: bool):
+        """
+        Handle write-back operation for an address.
+
+        A write-back to cache level in memory hierarchy with level "level".
         
         Args:
             address: The memory address to write back.
             level: The cache level where the write-back needs to be written into.
+            sync: If True, perform synchronous write-back; else asynchronous.
         """
         if level >= len(self.hierarchy.levels):
             return
         
+        if sync:
+            self.time_tick()
+
         cache = self.hierarchy.levels[level]
         status = cache.write(address, self.timestamp)
+
+        if sync:
+            self.performence.record_access(status)
+            
         if status == Status.MISS:
             hit_level = -1
             cache_hit = False
@@ -95,7 +112,7 @@ class MemoryController:
             for lvl in range(hit_level - 1, level - 1, -1):
                 is_dirty, evicted_address = self.hierarchy.levels[level].fill(address)
                 if is_dirty:
-                    self.handle_write_back(evicted_address, lvl + 1)
+                    self.handle_write_back(evicted_address, lvl + 1, sync=False)
 
             # Now the line is in the cache at 'level', perform the write
             cache.write(address, self.timestamp)
