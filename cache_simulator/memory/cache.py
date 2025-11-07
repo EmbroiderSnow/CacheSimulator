@@ -16,7 +16,7 @@ class Cache:
         hit_latency: Latency for a cache hit in cycles.
         eviction_policy: Policy used for evicting cache lines (e.g., LRU, FIFO).
         write_policy: Policy used for writing data (e.g., write-back, write-through).
-        write_allocate: Boolean indicating if write-allocate is used.
+        allocate_policy: Policy for allocating on write misses (e.g., write-allocate, no-write-allocate).
         sets: List of Set objects.
     """
 
@@ -29,9 +29,9 @@ class Cache:
         self.hit_latency = hit_latency
         self.eviction_policy = eviction_policy
         self.write_policy = write_policy
-        self.write_allocate = write_allocate
+        self.allocate_policy = write_allocate
         self.set_num = cache_size // (block_size * associativity)
-        self.sets = [Set(associativity=associativity, eviction_plicy=eviction_policy) for _ in range(self.set_num)]
+        self.sets = [Set(index=i, associativity=associativity, block_size=block_size, eviction_plicy=eviction_policy) for i in range(self.set_num)]
         
 
     def __repr__(self):
@@ -66,10 +66,10 @@ class Cache:
         target_set = self.sets[index]
         return target_set.write_line(tag, timestamp)
 
-    def fill(self, address, timestamp):
+    def fill(self, address, timestamp) -> tuple:
         tag, index, offset = self.parse_address(address)
         target_set = self.sets[index]
-        target_set.fill_line(tag, timestamp)
+        return target_set.fill_line(tag, timestamp)
 
     def parse_address(self, address):
         """

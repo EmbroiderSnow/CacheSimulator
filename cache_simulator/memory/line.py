@@ -41,7 +41,13 @@ class Line:
             Status: Must be a HIT since this method is called only if the line is valid.
         """
         return Status.HIT
-    
+
+    def write(self):
+        """
+        Mark the line as dirty to indicate it has been modified.
+        """
+        self.dirty = True
+
     def fill(self, tag):
         """
         Fill the line with the given tag and mark it as valid.
@@ -53,12 +59,6 @@ class Line:
         self.valid = True
         self.dirty = False
         self.ref_count = 0
-
-    def write(self):
-        """
-        Mark the line as dirty to indicate it has been modified.
-        """
-        self.dirty = True
 
     def set_access_time(self, time):
         """
