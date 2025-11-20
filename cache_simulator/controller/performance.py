@@ -49,7 +49,7 @@ class Performance:
         print(f"Total Accesses: {self.access_count}")
         print(f"Total Hits: {self.hit_count}")
         print(f"Total Misses: {self.miss_count}")
-        print(f"Miss Rate: {self.get_miss_rate():.4f}")
+        print(f"Miss Rate: {self.get_miss_rate()*100:.2f}%")
         print(f"Total Latency: {self.total_latency} cycles")
         print(f"Average Latency per Access: {self.total_latency / self.access_count if self.access_count > 0 else 0:.2f} cycles")
         print("Cache Access Counts:")
