@@ -71,8 +71,7 @@ class Cache:
         tag, index, offset = self.parse_address(address)
         target_set: Set = self.sets[index]
         status = target_set.read_line(tag, timestamp)
-        if status == Status.MISS:
-            self.handle_prefetch(address, timestamp)
+        self.handle_prefetch(address, timestamp, status)
         return status
     
     def write(self, address, timestamp) -> Status:
@@ -143,8 +142,12 @@ class Cache:
 
         return number * multipliers[unit_str]
     
-    def handle_prefetch(self, address, timestamp):
-        candidates = self.prefetch_policy.get_prefetch_candidates(address, self.block_size)
+    def handle_prefetch(self, address, timestamp, status):
+        candidates = []
+        if status == Status.HIT:
+            candidates = self.prefetch_policy.on_hit(address, self.block_size)
+        else:
+            candidates = self.prefetch_policy.on_miss(address, self.block_size)
         for prefetch_addr in candidates:
             self.fill_prefetch(prefetch_addr, timestamp)
 
