@@ -24,10 +24,20 @@ class LRU(EvictionPolicy):
         min_index = 0
         min_time = int(1e18)
         for i, line in enumerate(cache_set.lines):
-            if line.access_time < min_time:
-                min_time = line.access_time
+            timestamp = line.state if line.state is not None else 0
+            if timestamp < min_time:
+                min_time = timestamp
                 min_index = i
         return cache_set.lines[min_index]
 
     def update_on_access(self, cache_set, line, timestamp):
-        line.set_access_time(timestamp)
+        line.state = timestamp
+
+    def on_fill(self, cache_set, line, timestamp):
+        line.state = timestamp
+
+class SRRIP(EvictionPolicy):
+    """
+    Static Re-reference Interval Prediction
+    """
+    pass

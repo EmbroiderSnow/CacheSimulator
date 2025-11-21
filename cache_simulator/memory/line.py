@@ -8,14 +8,14 @@ class Line:
         valid: Boolean indicating if the line is valid.
         tag: Tag of the cache line.
         dirty: Boolean indicating if the line has been modified.
+        state: Any, uesd by eviction policy.
     """
 
     def __init__(self):
         self.valid = False
         self.tag = None
         self.dirty = False
-        self.ref_count = 0
-        self.access_time = 0
+        self.state = None
         
 
     def __repr__(self):
@@ -58,13 +58,3 @@ class Line:
         self.tag = tag
         self.valid = True
         self.dirty = False
-        self.ref_count = 0
-
-    def set_access_time(self, time):
-        """
-        Set the access time for the line.
-
-        Args:
-            time: The time to set as the access time.
-        """
-        self.access_time = time
