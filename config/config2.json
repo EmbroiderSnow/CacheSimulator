@@ -1,0 +1,64 @@
+{
+  "cache_hierarchy": [
+    {
+      "id": "L1-Cache",
+      "level": 1,
+      "config": {
+        "size": "32KB",
+        "associativity": 8,
+        "block_size": 64,
+        "replacement_policy": "LRU",
+        "prefetch": {
+          "policy_name": "NextNLine",
+          "degree": 4
+        },
+        "hit_latency": 4,
+        "write_policy": "Write-Back",
+        "allocation_policy": "Write-Allocate"
+      }
+    },
+    {
+      "id": "L2-Cache",
+      "level": 2,
+      "config": {
+        "size": "256KB",
+        "associativity": 8,
+        "block_size": 64,
+        "replacement_policy": "SRRIP",
+        "prefetch": {
+          "policy_name": "Stride",
+          "degree": 8,
+          "table_size": 16 
+        },
+        "bypass": {
+          "policy_name": "Prob",
+          "bypass_prob_demand": 0.05,
+          "bypass_prob_prefetch": 0.1
+        },
+        "hit_latency": 10,
+        "write_policy": "Write-Back",
+        "allocation_policy": "Write-Allocate"
+      }
+    }
+  ],
+  "interconnects": [
+    {
+      "from": "CPU",
+      "to": "L1-Cache",
+      "bus_latency": 0 
+    },
+    {
+      "from": "L1-Cache",
+      "to": "L2-Cache",
+      "bus_latency": 6
+    },
+    {
+      "from": "L2-Cache",
+      "to": "MainMemory",
+      "bus_latency": 0
+    }
+  ],
+  "main_memory": {
+    "access_latency": 100
+  }
+}
