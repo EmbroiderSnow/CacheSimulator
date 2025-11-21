@@ -113,8 +113,9 @@ class Performance:
         lines.append(f"{c_label}Total Replacements: {c_reset} {self.replacement_count}")
         lines.append(f"{c_label}Prefetch Count:     {c_reset} {self.prefetch_count}")
         lines.append(f"{c_label}Prefetch Misses:    {c_reset} {self.prefetch_miss_count}")
-        prefetch_missrate = self.prefetch_miss_count/self.prefetch_count * 100
-        lines.append(f"{c_label}Prefetch Miss Rate: {c_reset} {c_warn if prefetch_missrate > 20 else c_val}{prefetch_missrate:.2f}%{c_reset}")
+        prefetch_missrate = self.prefetch_miss_count/self.prefetch_count * 100 if self.prefetch_count != 0 else None
+        if prefetch_missrate != None:
+            lines.append(f"{c_label}Prefetch Miss Rate: {c_reset} {c_warn if prefetch_missrate > 20 else c_val}{prefetch_missrate:.2f}%{c_reset}")
         
         lines.append(f"{c_title}========================================{c_reset}\n")
         
