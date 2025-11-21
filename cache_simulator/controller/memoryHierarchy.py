@@ -29,6 +29,8 @@ class MemoryHierarchy:
                 level=cache_config["level"],
                 hit_latency=cache_config["config"]["hit_latency"],
                 eviction_policy=cache_config["config"]["replacement_policy"],
+                prefetch_policy=cache_config["config"]["prefetch_policy"],
+                prefetch_degree=cache_config["config"]["prefetch_degree"],
                 write_policy=cache_config["config"]["write_policy"],
                 write_allocate=cache_config["config"]["allocation_policy"]
             )

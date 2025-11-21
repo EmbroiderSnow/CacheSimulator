@@ -9,6 +9,7 @@ class Line:
         tag: Tag of the cache line.
         dirty: Boolean indicating if the line has been modified.
         state: Any, uesd by eviction policy.
+        prefetched: Boolean, used to stats prefetch accuracy.
     """
 
     def __init__(self):

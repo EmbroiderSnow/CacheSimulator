@@ -23,8 +23,8 @@
         "associativity": 8,
         "block_size": 64,
         "replacement_policy": "SRRIP",
-        "prefetch_policy": "None",
-        "prefetch_degree": 0,
+        "prefetch_policy": "NextNLine",
+        "prefetch_degree": 4,
         "hit_latency": 10,
         "write_policy": "Write-Back",
         "allocation_policy": "Write-Allocate"

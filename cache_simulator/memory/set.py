@@ -103,3 +103,8 @@ class Set:
                   (index << self.offset_bits) + offset
         return address
         
+    def contain_tag(self, tag) -> bool:
+        for line in self.lines:
+            if line.tag == tag:
+                return True
+        return False
