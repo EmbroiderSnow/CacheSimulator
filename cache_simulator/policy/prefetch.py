@@ -126,3 +126,70 @@ class Stream(PrefetchPolicy):
                     oldest_age = entry.last_access
                     evict_index = i
             self.entries[evict_index] = new_entry
+
+class StrideEntry:
+    def __init__(self, addr):
+        self.last_addr = addr
+        self.stride = 0
+        self.state = "Initial"
+        self.access_time = 0
+
+class Stride(PrefetchPolicy):
+    def __init__(self, degree=4, table_size=16):
+        self.degree = degree
+        self.entries = []
+        self.max_entries = table_size
+        self.timestamp = 0
+
+    def on_miss(self, addr, block_size):
+        return self.get_prefetch_candidates(addr, block_size)
+        
+    def on_hit(self, addr, block_size):
+        return []
+
+    def get_prefetch_candidates(self, addr, block_size):
+        current_block_addr = (addr // block_size) * block_size
+        self.timestamp += 1
+
+        for entry in self.entries:
+            delta = (current_block_addr - entry.last_addr) // block_size
+
+            if entry.state == "Steady" and delta == entry.stride:
+                entry.last_addr = current_block_addr
+                entry.access_time = self.timestamp
+
+                candidatas = []
+                current_pf_addr = current_block_addr
+                for _ in range(self.degree):
+                    current_pf_addr += entry.stride * block_size
+                    candidatas.append(current_pf_addr)
+                return candidatas
+
+            elif entry.state == "Training" and delta == entry.stride:
+                entry.last_addr = current_block_addr
+                entry.access_time = self.timestamp
+                self.state = "Steady"
+
+                return [current_block_addr + entry.stride * block_size]
+            
+            elif entry.state == "Initial":
+                if abs(delta) < 32 and delta != 0:
+                    entry.stride = delta
+                    entry.last_addr = current_block_addr
+                    entry.state = "Training"
+                    entry.access_time = self.timestamp
+
+                    return [current_block_addr + entry.stride * block_size]
+            
+        victim = None
+        if len(self.entries) < self.max_entries:
+            victim = StrideEntry(current_block_addr)
+            self.entries.append(victim)
+        else:
+            victim = min(self.entries, key=lambda e: e.access_time)
+            victim.last_addr = current_block_addr
+            victim.stride = 0
+            victim.state = "Initial"
+            victim.access_time = self.timestamp
+
+        return []

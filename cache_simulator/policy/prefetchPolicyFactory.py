@@ -8,6 +8,8 @@ def PrefetchPolicyFactory(config):
         return NexNLine(degree=config.get('degree', 1))
     elif policy_name == 'Stream':
         return Stream(degree=config.get('degree', 4), table_size=config.get('table_size', 8))
+    elif policy_name == 'Stride':
+        return Stride(degree=config.get("degree", 4), table_size=config.get("table_size", 8))
     elif policy_name == 'None' or policy_name is None:
         return NoPrefetch()
     else:
