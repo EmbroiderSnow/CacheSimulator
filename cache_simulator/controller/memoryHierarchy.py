@@ -22,6 +22,7 @@ class MemoryHierarchy:
         self.levels = []
         for cache_config in self.cache_hierarchy:
             prefetch_config = cache_config["config"].get("prefetch", None)
+            bypass_config = cache_config["config"].get("bypass", None)
             cache = Cache(
                 name=cache_config["id"],
                 cache_size=cache_config["config"]["size"],
@@ -31,6 +32,7 @@ class MemoryHierarchy:
                 hit_latency=cache_config["config"]["hit_latency"],
                 eviction_policy=cache_config["config"]["replacement_policy"],
                 prefetch=prefetch_config,
+                bypass=bypass_config,
                 write_policy=cache_config["config"]["write_policy"],
                 write_allocate=cache_config["config"]["allocation_policy"]
             )

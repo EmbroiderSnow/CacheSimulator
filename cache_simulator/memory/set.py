@@ -110,3 +110,15 @@ class Set:
             if line.tag == tag:
                 return True
         return False
+    
+    def is_full(self):
+        for line in self.lines:
+            if not line.is_valid():
+                return False
+        return True
+    
+    def get_line(self, tag):
+        for line in self.lines:
+            if line.get_tag() == tag:
+                return line
+        return None

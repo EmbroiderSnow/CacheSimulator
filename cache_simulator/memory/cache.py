@@ -3,6 +3,7 @@ from cache_simulator.memory.set import Set
 from cache_simulator.controller.status import Status
 from cache_simulator.policy.evictionPolicyFactory import EvictionPolicyFactory
 from cache_simulator.policy.prefetchPolicyFactory import PrefetchPolicyFactory
+from cache_simulator.policy.bypassPolicyFactory import BypassPolicyFactory
 
 class Cache:
     """
@@ -19,12 +20,13 @@ class Cache:
         hit_latency: Latency for a cache hit in cycles.
         eviction_policy: Policy used for evicting cache lines (e.g., LRU, FIFO).
         prefetch: Dict to construct prefetch policy
+        bypass: Dict to construct bypass policy
         write_policy: Policy used for writing data (e.g., write-back, write-through).
         allocate_policy: Policy for allocating on write misses (e.g., write-allocate, no-write-allocate).
         sets: List of Set objects.
     """
 
-    def __init__(self, name, cache_size, block_size, associativity, level, hit_latency, eviction_policy, prefetch, write_policy, write_allocate):
+    def __init__(self, name, cache_size, block_size, associativity, level, hit_latency, eviction_policy, prefetch, bypass ,write_policy, write_allocate):
         self.name = name
         self.cache_size = self.parse_size_to_bytes(cache_size)
         self.block_size = block_size
@@ -33,6 +35,7 @@ class Cache:
         self.hit_latency = hit_latency
         self.eviction_policy = EvictionPolicyFactory(eviction_policy)
         self.prefetch_policy = PrefetchPolicyFactory(prefetch)
+        self.bypass_policy = BypassPolicyFactory(bypass)
         self.write_policy = write_policy
         self.allocate_policy = write_allocate
         self.set_num = self.cache_size // (block_size * associativity)
@@ -84,6 +87,8 @@ class Cache:
     def fill(self, address, timestamp) -> tuple:
         tag, index, offset = self.parse_address(address)
         target_set = self.sets[index]
+        if self.bypass_policy.should_bypass(target_set, is_prefetch=False):
+            return (False, False, 0, False)
         ret = target_set.fill_line(tag, timestamp)
         if ret[3]:
             self.prefetch_miss_count += 1
@@ -161,6 +166,8 @@ class Cache:
         """
         tag, index, offset = self.parse_address(address)
         target_set = self.sets[index]
+        if self.bypass_policy.should_bypass(target_set, is_prefetch=True):
+            return 
         if not target_set.contain_tag(tag):
             self.prefetch_count += 1
             target_set.fill_line(tag, timestamp, is_prefetch=True)
