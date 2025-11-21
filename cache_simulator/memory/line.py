@@ -42,8 +42,9 @@ class Line:
         Returns:
             Status: Must be a HIT since this method is called only if the line is valid.
         """
+        is_prefetched = self.prefetched
         self.prefetched = False
-        return Status.HIT
+        return Status.HIT, is_prefetched
 
     def write(self):
         """

@@ -18,14 +18,13 @@ class Cache:
         level: Cache level (e.g., L1, L2).
         hit_latency: Latency for a cache hit in cycles.
         eviction_policy: Policy used for evicting cache lines (e.g., LRU, FIFO).
-        prefetch_policy: Policy used for prefetch data(e.g., NextNLine, Stream, Stride).
-        prefetch_degree: Argument used for prefetch policy.
+        prefetch: Dict to construct prefetch policy
         write_policy: Policy used for writing data (e.g., write-back, write-through).
         allocate_policy: Policy for allocating on write misses (e.g., write-allocate, no-write-allocate).
         sets: List of Set objects.
     """
 
-    def __init__(self, name, cache_size, block_size, associativity, level, hit_latency, eviction_policy, prefetch_policy, prefetch_degree, write_policy, write_allocate):
+    def __init__(self, name, cache_size, block_size, associativity, level, hit_latency, eviction_policy, prefetch, write_policy, write_allocate):
         self.name = name
         self.cache_size = self.parse_size_to_bytes(cache_size)
         self.block_size = block_size
@@ -33,7 +32,7 @@ class Cache:
         self.level = level
         self.hit_latency = hit_latency
         self.eviction_policy = EvictionPolicyFactory(eviction_policy)
-        self.prefetch_policy = PrefetchPolicyFactory(prefetch_policy, prefetch_degree)
+        self.prefetch_policy = PrefetchPolicyFactory(prefetch)
         self.write_policy = write_policy
         self.allocate_policy = write_allocate
         self.set_num = self.cache_size // (block_size * associativity)
@@ -70,8 +69,11 @@ class Cache:
     def read(self, address, timestamp) -> Status:
         tag, index, offset = self.parse_address(address)
         target_set: Set = self.sets[index]
-        status = target_set.read_line(tag, timestamp)
-        self.handle_prefetch(address, timestamp, status)
+        status, is_prefetched = target_set.read_line(tag, timestamp)
+        if status == Status.MISS:
+            self.handle_prefetch(address, timestamp, status)
+        elif status == Status.HIT and is_prefetched:
+            self.handle_prefetch(address, timestamp, status)
         return status
     
     def write(self, address, timestamp) -> Status:

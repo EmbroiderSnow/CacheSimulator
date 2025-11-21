@@ -42,7 +42,7 @@ class Set:
             if line.is_valid() and line.get_tag() == tag:
                 self.eviction_policy.update_on_access(self, line, timestamp=timestamp);
                 return line.read()
-        return Status.MISS
+        return Status.MISS, None
     
     def write_line(self, tag, timestamp) -> Status:
         """
