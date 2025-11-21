@@ -145,7 +145,7 @@ class Stride(PrefetchPolicy):
         return self.get_prefetch_candidates(addr, block_size)
         
     def on_hit(self, addr, block_size):
-        return []
+        return self.get_prefetch_candidates(addr, block_size)
 
     def get_prefetch_candidates(self, addr, block_size):
         current_block_addr = (addr // block_size) * block_size
@@ -168,7 +168,7 @@ class Stride(PrefetchPolicy):
             elif entry.state == "Training" and delta == entry.stride:
                 entry.last_addr = current_block_addr
                 entry.access_time = self.timestamp
-                self.state = "Steady"
+                entry.state = "Steady"
 
                 return [current_block_addr + entry.stride * block_size]
             
