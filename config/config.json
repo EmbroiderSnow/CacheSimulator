@@ -4,7 +4,7 @@
       "id": "L1-Cache",
       "level": 1,
       "config": {
-        "size": "4KB",
+        "size": "32KB",
         "associativity": 8,
         "block_size": 64,
         "replacement_policy": "LRU",
@@ -17,10 +17,10 @@
       "id": "L2-Cache",
       "level": 2,
       "config": {
-        "size": "64KB",
+        "size": "256KB",
         "associativity": 8,
         "block_size": 64,
-        "replacement_policy": "LRU",
+        "replacement_policy": "SRRIP",
         "hit_latency": 10,
         "write_policy": "Write-Back",
         "allocation_policy": "Write-Allocate"
@@ -31,17 +31,17 @@
     {
       "from": "CPU",
       "to": "L1-Cache",
-      "bus_latency": 1 
+      "bus_latency": 0 
     },
     {
       "from": "L1-Cache",
       "to": "L2-Cache",
-      "bus_latency": 2
+      "bus_latency": 6
     },
     {
       "from": "L2-Cache",
       "to": "MainMemory",
-      "bus_latency": 20
+      "bus_latency": 0
     }
   ],
   "main_memory": {

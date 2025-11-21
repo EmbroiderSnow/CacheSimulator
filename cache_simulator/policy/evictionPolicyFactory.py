@@ -12,8 +12,7 @@ def EvictionPolicyFactory(policy_name):
     """
     if policy_name == 'LRU':
         return LRU()
-    elif policy_name == 'FIFO':
-        # return FIFO()
-        pass
+    elif policy_name == 'SRRIP':
+        return SRRIP()
     else:
         raise ValueError(f"Unknown eviction policy: {policy_name}")

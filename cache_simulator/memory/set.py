@@ -40,7 +40,7 @@ class Set:
         """
         for line in self.lines:
             if line.is_valid() and line.get_tag() == tag:
-                self.eviction_policy.update_on_access(self, line, timestamp);
+                self.eviction_policy.update_on_access(self, line, timestamp=timestamp);
                 return line.read()
         return Status.MISS
     
@@ -54,7 +54,7 @@ class Set:
         """
         for line in self.lines:
             if line.is_valid() and line.get_tag() == tag:
-                self.eviction_policy.update_on_access(self, line, timestamp);
+                self.eviction_policy.update_on_access(self, line, timestamp=timestamp);
                 line.write()
                 return Status.HIT
         return Status.MISS
@@ -73,12 +73,12 @@ class Set:
         for line in self.lines:
             if not line.is_valid():
                 line.fill(tag)
-                self.eviction_policy.on_fill(self, line, timestamp)
+                self.eviction_policy.on_fill(self, line, timestamp=timestamp)
                 return (False, False, 0)
         # Fall into eviction policy if no empty line is found
         evicted_line = self.eviction_policy.evict(self)
         evicted_address = self.get_address_of_line(evicted_line)
-        self.eviction_policy.on_fill(self, evicted_line, timestamp)
+        self.eviction_policy.on_fill(self, evicted_line, timestamp=timestamp)
         evicted_line.fill(tag)
         if evicted_line.is_dirty():
             evicted_line.dirty = False

@@ -12,8 +12,11 @@ class EvictionPolicy:
     def evict(self, cache_set) -> Line:
         raise NotImplementedError("Evict method must be implemented by subclasses.")
 
-    def update_on_access(self, cache_set, line):
+    def update_on_access(self, cache_set, line, timestamp):
         raise NotImplementedError("Update on access method must be implemented by subclasses.")
+    
+    def on_fill(self, cache_set, line, timestamp):
+        raise NotImplementedError("On fill method must be implemented by subclass")
     
 class LRU(EvictionPolicy):
     """
@@ -40,4 +43,20 @@ class SRRIP(EvictionPolicy):
     """
     Static Re-reference Interval Prediction
     """
-    pass
+    
+    def evict(self, cache_set) -> Line:
+        while True:
+            for line in cache_set.lines:
+                rrpv = line.state if line.state is not None else 3
+                if rrpv == 3:
+                    return line
+                
+            for line in cache_set.lines:
+                if line.state is not None and line.state < 3:
+                    line.state += 1
+
+    def update_on_access(self, cache_set, line, timestamp):
+        line.state = 0
+
+    def on_fill(self, cache_set, line, timestamp):
+        line.state = 2
