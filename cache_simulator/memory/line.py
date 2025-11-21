@@ -17,6 +17,7 @@ class Line:
         self.tag = None
         self.dirty = False
         self.state = None
+        self.prefetched = True
         
 
     def __repr__(self):
@@ -41,21 +42,25 @@ class Line:
         Returns:
             Status: Must be a HIT since this method is called only if the line is valid.
         """
+        self.prefetched = False
         return Status.HIT
 
     def write(self):
         """
         Mark the line as dirty to indicate it has been modified.
         """
+        self.prefetched = False
         self.dirty = True
 
-    def fill(self, tag):
+    def fill(self, tag, is_prefetch=False):
         """
         Fill the line with the given tag and mark it as valid.
 
         Args:
             tag: The tag to set for the line.
+            is_prefetch: Is this fill caused by prefetch?
         """
         self.tag = tag
         self.valid = True
         self.dirty = False
+        self.prefetched = is_prefetch

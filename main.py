@@ -26,6 +26,7 @@ def run_simulation(controller: MemoryController, trace_file: str):
             else:
                 print(f"Unknown operation: {operation}")
 
+    controller.collect_prefetch_information()
     controller.performance.print_stats()
 
 if __name__ == "__main__":

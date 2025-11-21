@@ -59,32 +59,34 @@ class Set:
                 return Status.HIT
         return Status.MISS
     
-    def fill_line(self, tag, timestamp) -> tuple:
+    def fill_line(self, tag, timestamp, is_prefetch=False) -> tuple:
         """
         Fills a line in the set with the given tag.
         
         Args:
             tag: The tag of the line to fill.
             timestamp: The current global clock time.
+            is_prefetch: Is this fill caused by prefetch?
 
         Returns:
-            tuple: (is_dirty: bool, evicted: bool, evicted_line_address: int)
+            tuple: (is_dirty: bool, evicted: bool, evicted_line_address: int, prefetch_miss: bool)
         """
         for line in self.lines:
             if not line.is_valid():
-                line.fill(tag)
+                line.fill(tag, is_prefetch)
                 self.eviction_policy.on_fill(self, line, timestamp=timestamp)
-                return (False, False, 0)
+                return (False, False, 0, 0)
         # Fall into eviction policy if no empty line is found
         evicted_line = self.eviction_policy.evict(self)
+        prefetch_miss = evicted_line.prefetched
         evicted_address = self.get_address_of_line(evicted_line)
         self.eviction_policy.on_fill(self, evicted_line, timestamp=timestamp)
-        evicted_line.fill(tag)
+        evicted_line.fill(tag, is_prefetch)
         if evicted_line.is_dirty():
             evicted_line.dirty = False
-            return (True, True, evicted_address)
-        else :
-            return (False, True, 0)
+            return (True, True, evicted_address, prefetch_miss)
+        else:
+            return (False, True, 0, prefetch_miss)
         
     def get_address_of_line(self, line: Line) -> int:
         """

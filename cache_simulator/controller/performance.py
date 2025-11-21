@@ -19,6 +19,8 @@ class Performance:
         self.total_latency = 0
         self.cache_access_count = {}
         self.replacement_count = 0
+        self.prefetch_count = 0
+        self.prefetch_miss_count = 0
     
     def record_access(self, hit: Status):
         self.access_count += 1
@@ -55,4 +57,6 @@ class Performance:
         print("Cache Access Counts:")
         for level_id, count in self.cache_access_count.items():
             print(f"  {level_id}: {count} accesses")
+        print(f"Prefetch count: {self.prefetch_count}")
+        print(f"Prefetch miss count: {self.prefetch_miss_count}")
         print(f"Total Replacements: {self.replacement_count}")

@@ -40,6 +40,9 @@ class Cache:
         self.offset_bits = int(math.log2(block_size))
         self.index_bits = int(math.log2(self.set_num))
         self.sets = [Set(index=i, associativity=associativity, block_size=block_size, eviction_plicy=self.eviction_policy, offset_bits=self.offset_bits, index_bits=self.index_bits) for i in range(self.set_num)]
+
+        self.prefetch_count = 0
+        self.prefetch_miss_count = 0
         
 
     def __repr__(self):
@@ -80,7 +83,10 @@ class Cache:
     def fill(self, address, timestamp) -> tuple:
         tag, index, offset = self.parse_address(address)
         target_set = self.sets[index]
-        return target_set.fill_line(tag, timestamp)
+        ret = target_set.fill_line(tag, timestamp)
+        if ret[3]:
+            self.prefetch_miss_count += 1
+        return ret
 
     def parse_address(self, address):
         """
@@ -139,11 +145,17 @@ class Cache:
     
     def handle_prefetch(self, address, timestamp):
         candidates = self.prefetch_policy.get_prefetch_candidates(address, self.block_size)
-        for prefetch_addr in  candidates:
+        for prefetch_addr in candidates:
             self.fill_prefetch(prefetch_addr, timestamp)
 
     def fill_prefetch(self, address, timestamp):
+        """
+        Returns:
+            True if count this prefetch(prefetch target address not in Set)
+            False if not count this prefetch(prefetch target already in Set)
+        """
         tag, index, offset = self.parse_address(address)
         target_set = self.sets[index]
         if not target_set.contain_tag(tag):
-            target_set.fill_line(tag, timestamp)
+            self.prefetch_count += 1
+            target_set.fill_line(tag, timestamp, is_prefetch=True)

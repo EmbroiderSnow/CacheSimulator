@@ -53,7 +53,7 @@ class MemoryController:
             total_latency += self.hierarchy.bus_latencies[-1]
 
         for level in range(hit_level - 1, -1, -1):
-            is_dirty, evited, evicted_address = self.hierarchy.levels[level].fill(address, self.timestamp)
+            is_dirty, evited, evicted_address, _ = self.hierarchy.levels[level].fill(address, self.timestamp)
             total_latency += self.hierarchy.bus_latencies[level]
             if evited:
                 self.performance.record_replacement()
@@ -114,7 +114,7 @@ class MemoryController:
                 self.performance.record_cache_access("MainMemory")
 
             for lvl in range(hit_level - 1, level - 1, -1):
-                is_dirty, evicted, evicted_address = self.hierarchy.levels[lvl].fill(address, self.timestamp)
+                is_dirty, evicted, evicted_address, _ = self.hierarchy.levels[lvl].fill(address, self.timestamp)
                 if evicted:
                     self.performance.record_replacement()
                 if is_dirty:
@@ -123,3 +123,8 @@ class MemoryController:
             # Now the line is in the cache at 'level', perform the write
             cache.write(address, self.timestamp)
             self.performance.record_cache_access(cache.name)
+
+    def collect_prefetch_information(self):
+        for cache in self.hierarchy.levels:
+            self.performance.prefetch_count += cache.prefetch_count
+            self.performance.prefetch_miss_count += cache.prefetch_miss_count
