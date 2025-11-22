@@ -12,7 +12,7 @@
           "policy_name": "NextNLine",
           "degree": 2
         },
-        "hit_latency": 4,
+        "hit_latency": 3,
         "write_policy": "Write-Back",
         "allocation_policy": "Write-Allocate"
       }
@@ -35,7 +35,7 @@
           "bypass_prob_demand": 0.02,
           "bypass_prob_prefetch": 0.05
         },
-        "hit_latency": 10,
+        "hit_latency": 4,
         "write_policy": "Write-Back",
         "allocation_policy": "Write-Allocate"
       }

@@ -8,7 +8,7 @@
         "associativity": 8,
         "block_size": 64,
         "replacement_policy": "LRU",
-        "hit_latency": 4,
+        "hit_latency": 3,
         "write_policy": "Write-Back",
         "allocation_policy": "Write-Allocate"
       }
@@ -26,7 +26,7 @@
           "degree": 4,
           "table_size": 16
         },
-        "hit_latency": 10,
+        "hit_latency": 4,
         "write_policy": "Write-Back",
         "allocation_policy": "Write-Allocate"
       }
