@@ -70,6 +70,7 @@ class MemoryController:
         Args:
             address: The memory address to write to.
         """
+        self.performance.record_latency(self.hierarchy.levels[0].hit_latency)
         self.handle_write_back(address, 0, sync=True)
 
     def handle_write_back(self, address, level, sync: bool):
@@ -115,6 +116,7 @@ class MemoryController:
 
             for lvl in range(hit_level - 1, level - 1, -1):
                 is_dirty, evicted, evicted_address, _ = self.hierarchy.levels[lvl].fill(address, self.timestamp)
+                self.performance.record_latency(self.hierarchy.levels[lvl].hit_latency)
                 if evicted:
                     self.performance.record_replacement()
                 if is_dirty:
