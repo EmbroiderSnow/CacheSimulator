@@ -28,10 +28,10 @@ class Performance:
         self.miss_count = 0
         self.hit_count = 0
         self.total_latency = 0
-        self.cache_access_count = {}
         self.replacement_count = 0
         self.prefetch_count = 0
         self.prefetch_miss_count = 0
+        self.level_stats = {}
     
     def record_access(self, hit: Status):
         self.access_count += 1
@@ -41,10 +41,17 @@ class Performance:
             self.miss_count += 1
         assert self.access_count == self.hit_count + self.miss_count, "Inconsistent performance metrics"
 
-    def record_cache_access(self, level_id: str):
-        if level_id not in self.cache_access_count:
-            self.cache_access_count[level_id] = 0
-        self.cache_access_count[level_id] += 1
+    def record_cache_access(self, level_id: str, status: Status):
+        if level_id not in self.level_stats:
+            self.level_stats[level_id] = {"accesses": 0, "hits": 0, "misses": 0}
+        
+        self.level_stats[level_id]["accesses"] += 1
+        
+        if status is not None:
+            if status == Status.HIT:
+                self.level_stats[level_id]["hits"] += 1
+            elif status == Status.MISS:
+                self.level_stats[level_id]["misses"] += 1
 
     def record_replacement(self):
         self.replacement_count += 1
@@ -82,40 +89,42 @@ class Performance:
             lines.append(config_str)
             lines.append("-" * 40)
 
-        # 2. Statistics Section
-        lines.append(f"\n{c_header}[Performance Statistics]{c_reset}")
+        # 2. Global Statistics Section
+        lines.append(f"\n{c_header}[Global Performance Statistics]{c_reset}")
         
         avg_latency = self.total_latency / self.access_count if self.access_count > 0 else 0
         miss_rate = self.get_miss_rate() * 100
         
-        # Access Info
         lines.append(f"{c_label}Total Accesses:{c_reset} {c_val}{self.access_count:<10}{c_reset}")
         lines.append(f"{c_label}Total Hits:    {c_reset} {c_val}{self.hit_count:<10}{c_reset}")
         lines.append(f"{c_label}Total Misses:  {c_reset} {c_warn}{self.miss_count:<10}{c_reset}")
         lines.append(f"{c_label}Miss Rate:     {c_reset} {c_warn if miss_rate > 20 else c_val}{miss_rate:.2f}%{c_reset}")
-        
         lines.append("-" * 20)
-        
-        # Latency Info
         lines.append(f"{c_label}Total Latency: {c_reset} {self.total_latency} cycles")
         lines.append(f"{c_label}Avg Latency:   {c_reset} {avg_latency:.2f} cycles/access")
+        lines.append(f"{c_label}Total Replacements:{c_reset} {self.replacement_count}")
+        lines.append(f"{c_label}Prefetch Count:    {c_reset} {self.prefetch_count}")
+        lines.append(f"{c_label}Prefetch Misses:   {c_reset} {self.prefetch_miss_count}")
         
-        lines.append("-" * 20)
+        # 3. Per-Level Breakdown
+        lines.append(f"\n{c_header}[Per-Level Breakdown]{c_reset}")
+        # Header for the table
+        lines.append(f"{'Level':<15} | {'Accesses':<10} | {'Hits':<10} | {'Misses':<10} | {'Miss Rate':<10}")
+        lines.append("-" * 65)
 
-        # Hierarchy Breakdown
-        lines.append(f"{c_label}Access Breakdown per Level:{c_reset}")
-        for level_id, count in self.cache_access_count.items():
-            lines.append(f"  - {level_id:<10}: {count} accesses")
+        for level_id, stats in self.level_stats.items():
+            accesses = stats["accesses"]
+            hits = stats["hits"]
+            misses = stats["misses"]
+            # Check if this level tracks hits/misses (MainMemory usually doesn't return HIT status in this logic)
+            if hits + misses > 0:
+                local_miss_rate = (misses / (hits + misses)) * 100
+                miss_rate_str = f"{local_miss_rate:.2f}%"
+            else:
+                # Main Memory or Levels purely accessed via eviction/fill without status check
+                miss_rate_str = "N/A"
             
-        lines.append("-" * 20)
-
-        # Other metrics
-        lines.append(f"{c_label}Total Replacements: {c_reset} {self.replacement_count}")
-        lines.append(f"{c_label}Prefetch Count:     {c_reset} {self.prefetch_count}")
-        lines.append(f"{c_label}Prefetch Misses:    {c_reset} {self.prefetch_miss_count}")
-        prefetch_missrate = self.prefetch_miss_count/self.prefetch_count * 100 if self.prefetch_count != 0 else None
-        if prefetch_missrate != None:
-            lines.append(f"{c_label}Prefetch Miss Rate: {c_reset} {c_warn if prefetch_missrate > 20 else c_val}{prefetch_missrate:.2f}%{c_reset}")
+            lines.append(f"{level_id:<15} | {accesses:<10} | {hits:<10} | {misses:<10} | {miss_rate_str:<10}")
         
         lines.append(f"{c_title}========================================{c_reset}\n")
         
