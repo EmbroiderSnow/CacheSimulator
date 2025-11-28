@@ -130,3 +130,24 @@ class MemoryController:
         for cache in self.hierarchy.levels:
             self.performance.prefetch_count += cache.prefetch_count
             self.performance.prefetch_miss_count += cache.prefetch_miss_count
+    
+    def calculate_AMAT(self, level: int) -> float:
+        """
+        Calculate the Average Memory Access Time (AMAT) up to a specified cache level.
+
+        Args:
+            level: The cache level up to which AMAT is calculated (0-indexed).
+
+        Returns:
+            The calculated AMAT as a float.
+        """
+        amat = 0.0
+        miss_rate = self.performance.get_miss_rate(self.hierarchy.levels[level].name)
+        print(f"Level {level} Miss Rate: {miss_rate:.4f}")
+        amat = self.hierarchy.levels[level].hit_latency + miss_rate * (
+            self.hierarchy.bus_latencies[level] + 
+            (self.calculate_AMAT(level + 1) if level + 1 < len(self.hierarchy.levels) else self.hierarchy.main_memory_latency)
+        )
+        self.performance.amat[self.hierarchy.levels[level].name] = amat
+        return amat
+        
