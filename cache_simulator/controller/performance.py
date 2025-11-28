@@ -44,6 +44,10 @@ class Performance:
         self.replacement_count //= warmup
         self.prefetch_count //= warmup
         self.prefetch_miss_count //= warmup
+        for level in self.level_stats:
+            self.level_stats[level]["accesses"] //= warmup
+            self.level_stats[level]["hits"] //= warmup
+            self.level_stats[level]["misses"] //= warmup
     
     def record_access(self, hit: Status):
         self.access_count += 1
